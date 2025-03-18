@@ -1,20 +1,36 @@
 'use client';
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Register = () => {
-  const [name, setName] = useState("");
+  const [username, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [phone, setphone] = useState("");
+  const router = useRouter();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
+    const res = await fetch('http://localhost:8000/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },            
+      body: JSON.stringify({ username , email, password, phone })
+    });
+
+    const data = await res.json();
+
+    if(res.ok){
+      console.log('Register success:', data);
+      localStorage.setItem('token', data.token);
+      router.push('/');
     }
-    console.log("Registering:", { name, email, password });
+    else{
+      console.error('Error:', data);
+    }
+
   };
 
   return (
@@ -29,7 +45,7 @@ const Register = () => {
               type="text"
               className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300 focus:outline-none"
               placeholder="Enter your full name"
-              value={name}
+              value={username}
               onChange={(e) => setName(e.target.value)}
               required
             />
@@ -60,13 +76,13 @@ const Register = () => {
           </div>
 
           <div>
-            <label className="block text-gray-600 text-sm mb-1">Confirm Password</label>
+            <label className="block text-gray-600 text-sm mb-1">Phone</label>
             <input
-              type="password"
+              type="text"
               className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300 focus:outline-none"
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Enter Phone"
+              value={phone}
+              onChange={(e) => setphone(e.target.value)}
               required
             />
           </div>
