@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaTrain, FaSearch } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
@@ -10,6 +10,9 @@ const Home = () => {
   const [trains, setTrains] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Check if the user is authenticated
+  const isAuthenticated = typeof window !== "undefined" && localStorage.getItem("isAuthenticated") === "true";
 
   // Handle Train Search
   const handleSearch = async () => {
@@ -24,15 +27,11 @@ const Home = () => {
     try {
       const response = await fetch("http://localhost:8000/api/train/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ source, destination })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source, destination }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch trains");
-      }
+      if (!response.ok) throw new Error("Failed to fetch trains");
 
       const data = await response.json();
       setTrains(data);
@@ -41,6 +40,16 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle Train Selection
+  const handleTrainSelect = (train) => {
+    if (!isAuthenticated) {
+      router.push('/login')
+      return;
+    }
+    const trainData = btoa(JSON.stringify(train)); // Base64 encoding
+    router.push(`/passengers?train=${trainData}`);
   };
 
   return (
@@ -97,10 +106,7 @@ const Home = () => {
               </div>
               <button
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition"
-                onClick={() => {
-                  const trainData = btoa(JSON.stringify(train));  // Base64 encoding
-                  router.push(`/passengers?train=${trainData}`);
-                }}
+                onClick={() => handleTrainSelect(train)}
               >
                 Select
               </button>

@@ -67,7 +67,10 @@ export default function Passengers() {
   const proceedToPayment = () => {
     if (passengers.length === 0) return alert("Add at least one passenger!");
     const queryParams = encodeURIComponent(JSON.stringify(passengers));
-    router.push(`/payment?train=${trainData}&passengers=${queryParams}`);
+    router.push(
+      `/payment?train=${encodeURIComponent(JSON.stringify(train))}&passengers=${encodeURIComponent(JSON.stringify(passengers))}`
+    );
+    
   };
 
   return (
