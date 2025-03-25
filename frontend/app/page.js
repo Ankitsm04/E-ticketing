@@ -10,6 +10,7 @@ const Home = () => {
   const [trains, setTrains] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedDate, setSelectedDate] = useState("");
   
   // Check if the user is authenticated
   const isAuthenticated = typeof window !== "undefined" && localStorage.getItem("isAuthenticated") === "true";
