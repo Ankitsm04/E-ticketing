@@ -3,6 +3,7 @@ const app = express();
 const connectDb = require('./utils/db');
 const authRoutes = require('./routes/user-routes');
 const trainRoutes = require('./routes/train-routes');
+const confirmRoutes = require('./routes/confirmedJourney-routes');
 const cors = require('cors');
 
 app.use(cors({
@@ -14,6 +15,7 @@ app.use(cors({
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/train', trainRoutes);
+app.use('/api/confirm', confirmRoutes);
 
 connectDb().then(async () => {
     app.listen(8000, () => {

@@ -50,9 +50,24 @@ export default function Payment() {
     return passengers.reduce((sum, p) => sum + (coachPrices[p.coach] || 500), 0);
   }, [passengers]);
 
-  const handleFakePayment = () => {
+  const handleFakePayment = async () => {
     setIsPaying(true);
+    const response = await fetch("http://localhost:8000/api/confirm/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        train_name: train.train_name,
+        train_number: train.train_number,
+        passenger_name: passengers[0].name,
+      })
+    });
 
+    const data = await response.json();
+    console.log("Payment Response:", data);
+
+    
     setTimeout(() => {
       setIsPaying(false);
       setPaymentSuccess(true);
@@ -61,7 +76,7 @@ export default function Payment() {
         router.push(
           `/confirmation?train=${encodeURIComponent(JSON.stringify(train))}&passengers=${encodeURIComponent(JSON.stringify(passengers))}&booking=${Math.floor(100000 + Math.random() * 900000)}`
         );
-        
+
       }, 2000);
     }, 3000);
   };
@@ -94,7 +109,7 @@ export default function Payment() {
           <ul>
             {passengers.map((p, index) => (
               <li key={index} className="border-b py-2">
-                {p.name} ({p.age}, {p.gender}, {p.preference}) -  
+                {p.name} ({p.age}, {p.gender}, {p.preference}) -
                 <span className="text-blue-600"> {p.coach} </span>
                 (<strong>₹{coachPrices[p.coach] || 500}</strong>)
               </li>
