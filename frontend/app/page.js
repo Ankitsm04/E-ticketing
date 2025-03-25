@@ -78,6 +78,14 @@ const Home = () => {
           onChange={(e) => setDestination(e.target.value)}
         />
 
+      <input
+          type="date"
+          className="w-full px-4 py-2 border rounded-lg mb-4"
+          value={selectedDate}
+          placeholder="date"
+          onChange={(e) => setSelectedDate(e.target.value)}
+        />
+
         <button
           onClick={handleSearch}
           className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center"
