@@ -1,0 +1,5 @@
+train_number,train_name,source_code,source_name,destination_code,destination_name,departure_time,arrival_time,duration,days_of_operation,status
+12952,Tejas Express,NDLS,New Delhi,BCT,Mumbai Central,06:00,18:00,12:00,Mon, Wed, Fri, On Time
+12260,Duronto Express,NDLS,New Delhi,BCT,Mumbai Central,08:30,20:00,11:30,Tue, Thu, Sat, Delayed
+12015,Shatabdi Express,NDLS,New Delhi,ASR,Amritsar,07:20,13:35,06:15,Daily, On Time
+12625,Kerala Express,NDLS,New Delhi,TVC,Thiruvananthapuram,11:00,19:00,08:00,Mon, Wed, Sat, Departed

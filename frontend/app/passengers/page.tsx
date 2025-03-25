@@ -1,13 +1,20 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Train {
-  id: number;
-  name: string;
-  from: string;
-  to: string;
-  time: string;
+  _id: string;
+  train_number: string;
+  train_name: string;
+  source_code: string;
+  source_name: string;
+  destination_code: string;
+  destination_name: string;
+  departure_time: string;
+  arrival_time: string;
+  duration: string;
+  days_of_operation: string[];
+  status: string;
 }
 
 interface Passenger {
@@ -23,8 +30,7 @@ export default function Passengers() {
   const searchParams = useSearchParams();
   const trainData = searchParams.get("train");
 
-  const train: Train | null = trainData ? JSON.parse(decodeURIComponent(trainData)) : null;
-
+  const [train, setTrain] = useState<Train | null>(null);
   const [passengers, setPassengers] = useState<Passenger[]>([]);
   const [newPassenger, setNewPassenger] = useState<Passenger>({
     name: "",
@@ -33,6 +39,18 @@ export default function Passengers() {
     preference: "Lower Berth",
     coach: "Sleeper",
   });
+
+  useEffect(() => {
+    if (trainData) {
+      try {
+        const decodedData = JSON.parse(atob(decodeURIComponent(trainData)));  // Decode Base64 properly
+        setTrain(decodedData);
+      } catch (error) {
+        console.error("Error decoding train data:", error);
+        setTrain(null);
+      }
+    }
+  }, [trainData]);
 
   const addPassenger = () => {
     if (!newPassenger.name || !newPassenger.age) {
@@ -49,27 +67,33 @@ export default function Passengers() {
   const proceedToPayment = () => {
     if (passengers.length === 0) return alert("Add at least one passenger!");
     const queryParams = encodeURIComponent(JSON.stringify(passengers));
-    router.push(`/payment?train=${encodeURIComponent(trainData ?? "{}")}&passengers=${queryParams}`);
+    router.push(`/payment?train=${trainData}&passengers=${queryParams}`);
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center p-6 bg-gray-100">
-      <h1 className="text-2xl font-bold text-blue-600 mb-4">Passenger Details</h1>
+      <h1 className="text-3xl font-bold text-blue-600 mb-6">Passenger Details</h1>
 
       {/* Train Details */}
       {train ? (
         <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-md mb-6">
           <h2 className="text-lg font-semibold mb-2">Train Details</h2>
-          <p><strong>Name:</strong> {train.name}</p>
-          <p><strong>Route:</strong> {train.from} ➝ {train.to}</p>
-          <p><strong>Departure:</strong> {train.time}</p>
+          <p><strong>Train:</strong> {train.train_name} ({train.train_number})</p>
+          <p><strong>Route:</strong> {train.source_name} ➝ {train.destination_name}</p>
+          <p><strong>Departure:</strong> {train.departure_time}</p>
+          <p><strong>Arrival:</strong> {train.arrival_time}</p>
+          <p><strong>Duration:</strong> {train.duration}</p>
+          <p><strong>Status:</strong> {train.status}</p>
+          <p><strong>Days of Operation:</strong> {train.days_of_operation.join(", ")}</p>
         </div>
       ) : (
         <p className="text-red-500 mb-6">Train details not found!</p>
       )}
 
-      {/* Passenger Input Form */}
+      {/* Passenger Form */}
       <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-md">
+        <h2 className="text-lg font-semibold mb-2">Add Passenger</h2>
+
         <input
           type="text"
           placeholder="Enter Name"
@@ -86,18 +110,31 @@ export default function Passengers() {
           onChange={(e) => setNewPassenger({ ...newPassenger, age: e.target.value })}
         />
 
-        <select
-          className="w-full px-4 py-2 border rounded-lg mb-2"
-          value={newPassenger.gender}
-          onChange={(e) => setNewPassenger({ ...newPassenger, gender: e.target.value })}
-        >
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
+        <div className="grid grid-cols-2 gap-2">
+          <select
+            className="w-full px-4 py-2 border rounded-lg"
+            value={newPassenger.gender}
+            onChange={(e) => setNewPassenger({ ...newPassenger, gender: e.target.value })}
+          >
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+
+          <select
+            className="w-full px-4 py-2 border rounded-lg"
+            value={newPassenger.coach}
+            onChange={(e) => setNewPassenger({ ...newPassenger, coach: e.target.value })}
+          >
+            <option value="Sleeper">Sleeper</option>
+            <option value="3-tier A/C">3-tier A/C</option>
+            <option value="2-tier A/C">2-tier A/C</option>
+            <option value="1-tier A/C">1-tier A/C</option>
+          </select>
+        </div>
 
         <select
-          className="w-full px-4 py-2 border rounded-lg mb-2"
+          className="w-full px-4 py-2 border rounded-lg mt-2"
           value={newPassenger.preference}
           onChange={(e) => setNewPassenger({ ...newPassenger, preference: e.target.value })}
         >
@@ -108,19 +145,8 @@ export default function Passengers() {
           <option value="Side Upper Berth">Side Upper Berth</option>
         </select>
 
-        <select
-          className="w-full px-4 py-2 border rounded-lg mb-2"
-          value={newPassenger.coach}
-          onChange={(e) => setNewPassenger({ ...newPassenger, coach: e.target.value })}
-        >
-          <option value="Sleeper">Sleeper</option>
-          <option value="3-tier A/C">3-tier A/C</option>
-          <option value="2-tier A/C">2-tier A/C</option>
-          <option value="1-tier A/C">1-tier A/C</option>
-        </select>
-
         <button
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mt-4"
           onClick={addPassenger}
         >
           Add Passenger
@@ -149,7 +175,9 @@ export default function Passengers() {
 
       {/* Proceed to Payment */}
       <button
-        className="mt-6 bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg disabled:opacity-50"
+        className={`mt-6 bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition ${
+          passengers.length === 0 ? "opacity-50 cursor-not-allowed" : ""
+        }`}
         onClick={proceedToPayment}
         disabled={passengers.length === 0}
       >

@@ -8,8 +8,11 @@ export default function Confirmation() {
   const passengersData = searchParams.get("passengers");
   const bookingID = searchParams.get("booking");
 
-  const train = trainData ? JSON.parse(decodeURIComponent(trainData)) : null;
+  console.log("Train Data:", trainData);
+  console.log("Passengers Data:", passengersData);
 
+  // ✅ Safely decode and parse the data
+  const train = trainData ? JSON.parse(decodeURIComponent(trainData)) : null;
   const passengers = passengersData ? JSON.parse(decodeURIComponent(passengersData)) : [];
 
   return (
@@ -18,27 +21,32 @@ export default function Confirmation() {
 
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-lg font-semibold mb-2 text-center">E-Ticket Details</h2>
-        <p className="text-sm text-gray-500 mb-4 text-center">Booking ID: <span className="font-bold">{bookingID}</span></p>
+        <p className="text-sm text-gray-500 mb-4 text-center">
+          Booking ID: <span className="font-bold">{bookingID}</span>
+        </p>
 
+        {/* ✅ Display Train Details */}
         {train ? (
           <div className="mb-4">
             <h3 className="text-md font-semibold">Train Details</h3>
-            <p><strong>Name:</strong> {train.name}</p>
-            <p><strong>From:</strong> {train.from} → <strong>To:</strong> {train.to}</p>
-            <p><strong>Departure:</strong> {train.time}</p>
+            <p><strong>Train Number:</strong> {train.train_number}</p>
+            <p><strong>Name:</strong> {train.train_name}</p>
+            <p><strong>From:</strong> {train.source_name} → <strong>To:</strong> {train.destination_name}</p>
+            <p><strong>Departure:</strong> {train.departure_time}</p>
+            <p><strong>Arrival:</strong> {train.arrival_time}</p>
           </div>
         ) : (
-          <p className="mb-4 text-red-500">No train details found!</p>
+          <p className="mb-4 text-red-500">⚠️ No train details found!</p>
         )}
 
-        {/* Passenger List */}
+        {/* ✅ Display Passenger List */}
         <div>
           <h3 className="text-md font-semibold mb-2">Passengers</h3>
           {passengers.length > 0 ? (
             <ul>
-              {passengers.map((p: any, index: number) => (
+              {passengers.map((p, index) => (
                 <li key={index} className="border-b py-2">
-                  {p.name} ({p.age}, {p.gender}, {p.preference})
+                  {p.name} ({p.age}, {p.gender}, {p.preference}, {p.coach})
                 </li>
               ))}
             </ul>

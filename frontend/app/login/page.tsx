@@ -1,40 +1,44 @@
-'use client';
-import { useRouter } from 'next/navigation'; // Use the navigation router for redirection
+"use client";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import { useAuth } from "../components/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(""); // State for error handling
-  const router = useRouter(); // Initialize the router
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const { login } = useAuth(); // ✅ Use login from AuthContext
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); // Reset error message
+    setError("");
 
     try {
-      const res = await fetch('http://localhost:8000/api/auth/login', {
-        method: 'POST',
+      const res = await fetch("http://localhost:8000/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        localStorage.setItem('token', data.token); // Store token in localStorage
-        console.log('Login success:', data);
+        // ✅ Store token and trigger login
+        localStorage.setItem("token", data.token);
+        login(); // ✅ Trigger login globally
 
-        // Redirect to dashboard after successful login
-        router.push('/');
+        console.log("Login success:", data);
+
+        router.push("/");
       } else {
-        setError(data.message || "Login failed"); // Show error message
+        setError(data.message || "Login failed");
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
       setError("Something went wrong. Please try again.");
     }
   };
@@ -44,11 +48,7 @@ const Login = () => {
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
         <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Train E-Ticket Login</h2>
 
-        {error && (
-          <div className="text-red-500 text-center mb-4">
-            {error}
-          </div>
-        )}
+        {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
